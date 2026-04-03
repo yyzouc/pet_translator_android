@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04   # 使用旧版 Ubuntu，autotools 更稳定
 
     steps:
     - uses: actions/checkout@v4
@@ -21,20 +21,14 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
-
+        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev autoconf-archive
 
     - name: Install buildozer and cython
       run: |
         pip install --upgrade pip
         pip install buildozer cython
 
-    - name: Accept Android SDK licenses (if any)
-      run: |
-        mkdir -p ~/.buildozer/android/platform         # 创建目录并等待 buildozer 初始化 SDK
-        yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
-              
-    - name: Build APK
+    - name: Build APK (auto-accept licenses)
       run: |
         yes | buildozer android debug
 
