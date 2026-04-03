@@ -10,18 +10,18 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      # 1. 拉取代码
-      - name: Checkout
+      # 1. Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Python（固定版本）
-      - name: Set up Python
+      # 2. Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      # 3. 缓存（加速构建）
-      - name: Cache buildozer
+      # 3. Cache Buildozer + Gradle
+      - name: Cache Buildozer
         uses: actions/cache@v4
         with:
           path: |
@@ -29,40 +29,30 @@ jobs:
             ~/.gradle
           key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
 
-      # 4. 系统依赖
+      # 4. Install system dependencies
       - name: Install system dependencies
         run: |
           sudo apt update
           sudo apt install -y \
-            python3-pip \
-            build-essential \
-            git \
-            zip \
-            unzip \
-            openjdk-17-jdk \
-            autoconf \
-            libtool \
-            pkg-config \
-            zlib1g-dev \
-            libncurses5-dev \
-            libncursesw5-dev \
-            libtinfo5 \
-            cmake \
-            libffi-dev \
-            libssl-dev
+            python3-pip build-essential git zip unzip openjdk-17-jdk \
+            autoconf libtool pkg-config zlib1g-dev libncurses5-dev \
+            libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
-      # 5. 安装 Buildozer + 固定 Cython（🔥关键修复点）
+      # 5. Install Buildozer + fixed Cython
       - name: Install Buildozer
         run: |
           pip install --upgrade pip
           pip install buildozer cython==0.29.36
 
-      # 6. 构建 APK
-      - name: Build APK
-        run: |
-          buildozer android debug
+      # 6. Clean previous builds
+      - name: Clean Buildozer
+        run: buildozer android clean
 
-      # 7. 上传 APK
+      # 7. Build APK
+      - name: Build APK
+        run: buildozer android debug
+
+      # 8. Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
