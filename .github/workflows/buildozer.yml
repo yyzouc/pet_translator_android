@@ -9,50 +9,51 @@ jobs:
   build:
     runs-on: ubuntu-22.04
 
+    env:
+      ANDROIDMINAPI: 21
+
     steps:
-      # 1. Checkout
+      # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Set up Python
+      # 2️⃣ Set up Python
       - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      # 3. Cache Buildozer + Gradle
-      - name: Cache Buildozer
+      # 3️⃣ Cache Buildozer + Gradle + p4a
+      - name: Cache Buildozer and Gradle
         uses: actions/cache@v4
         with:
           path: |
             ~/.buildozer
             ~/.gradle
           key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
 
-      # 4. Install system dependencies
+      # 4️⃣ Install system dependencies
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y \
-            python3-pip build-essential git zip unzip openjdk-17-jdk \
+          sudo apt install -y python3-pip build-essential git zip unzip openjdk-17-jdk \
             autoconf libtool pkg-config zlib1g-dev libncurses5-dev \
             libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
-      # 5. Install Buildozer + fixed Cython
-      - name: Install Buildozer
+      # 5️⃣ Install Buildozer + Cython (固定版本避免 jnius 编译报错)
+      - name: Install Buildozer and Cython
         run: |
           pip install --upgrade pip
           pip install buildozer cython==0.29.36
 
-      # 6. Clean previous builds
-      - name: Clean Buildozer
-        run: buildozer android clean
-
-      # 7. Build APK
+      # 6️⃣ Build APK (自动下载 p4a / SDK / NDK / Gradle)
       - name: Build APK
-        run: buildozer android debug
+        run: |
+          buildozer android debug
 
-      # 8. Upload APK
+      # 7️⃣ Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
