@@ -1,0 +1,23 @@
+tignore << 'EOF'
+# 构建缓存
+.buildozer/
+bin/
+libs/
+__pycache__/
+*.pyc
+
+# 子仓库（不需要提交）
+python-for-android/
+android-for-android/
+
+# 下载的依赖包
+packages/
+
+# IDE 配置
+.vscode/
+.idea/
+
+# 其他临时文件
+*.log
+*.tmp
+EOF
