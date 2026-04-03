@@ -1,4 +1,4 @@
-name: Build APK with Docker
+name: Build APK
 
 on:
   push:
@@ -13,18 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build APK in Docker container
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/app \
-            -v ~/.buildozer:/home/user/.buildozer \
-            -w /app \
-            -e FORCE_ROOT=1 \
-            kivy/buildozer:latest \
-            sh -c "printf 'y\n' | buildozer android debug"
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Build APK with Buildozer
+        uses: DigiDNA/buildozer-action@v1
         with:
-          name: pet-translator-apk
-          path: bin/*.apk
+          command: android debug
+          # 可选：指定 buildozer 版本，默认使用 stable
+          # buildozer_version: stable
