@@ -13,17 +13,14 @@ jobs:
       ANDROIDMINAPI: 21
 
     steps:
-      # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Set up Python 3.10
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      # 3️⃣ Cache Buildozer + Gradle + p4a
       - name: Cache Buildozer and Gradle
         uses: actions/cache@v4
         with:
@@ -34,7 +31,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildozer-
 
-      # 4️⃣ Install system dependencies
       - name: Install system dependencies
         run: |
           sudo apt update
@@ -42,18 +38,15 @@ jobs:
             autoconf libtool pkg-config zlib1g-dev libncurses5-dev \
             libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
-      # 5️⃣ Install Buildozer + Cython 3.0.2
       - name: Install Buildozer and Cython
         run: |
           pip install --upgrade pip
-          pip install buildozer==1.4.1 cython==3.0.2
+          pip install buildozer==1.5.0 cython==3.0.2
 
-      # 6️⃣ Build APK (自动下载 p4a / SDK / NDK / Gradle)
       - name: Build APK
         run: |
           buildozer android debug
 
-      # 7️⃣ Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
