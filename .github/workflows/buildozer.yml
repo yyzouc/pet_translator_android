@@ -1,4 +1,4 @@
-name: Build APK (Buildozer)
+name: Build APK
 
 on:
   push:
@@ -7,48 +7,31 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     env:
       ANDROIDMINAPI: 21
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
 
-      - name: Cache Buildozer and Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.buildozer
-            ~/.gradle
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
+    - name: Upgrade pip & install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install "buildozer==1.5.0" "cython==3.0.2" wheel
 
-      - name: Install system dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y python3-pip build-essential git zip unzip openjdk-17-jdk \
-            autoconf libtool pkg-config zlib1g-dev libncurses5-dev \
-            libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+    - name: Install required system packages
+      run: |
+        sudo apt update
+        sudo apt install -y openjdk-8-jdk zip unzip zlib1g-dev libncurses5 libncurses5-dev \
+        libffi-dev libssl-dev autoconf automake libtool pkg-config
 
-      - name: Install Buildozer and Cython
-        run: |
-          pip install --upgrade pip
-          pip install buildozer==1.5.0 cython==3.0.2
-
-      - name: Build APK
-        run: |
-          buildozer android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: apk
-          path: bin/*.apk
+    - name: Build APK
+      run: |
+        buildozer android debug
