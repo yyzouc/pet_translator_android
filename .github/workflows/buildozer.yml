@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest   # 使用最新版，排队时间短
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install system dependencies
+      - name: Install system dependencies (including autoconf-archive)
         run: |
           sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip \
@@ -36,7 +36,7 @@ jobs:
             spawn buildozer android debug
             expect "Are you sure you want to continue [y/n]? "
             send "y\r"
-            interact
+            expect eof
           '
 
       - name: Upload APK
