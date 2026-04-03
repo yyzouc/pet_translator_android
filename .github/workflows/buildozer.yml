@@ -2,36 +2,60 @@ name: Build APK
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches:
+      - main
+  pull_request:
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-24.04
 
     env:
       ANDROIDMINAPI: 21
 
     steps:
-    - name: Checkout repo
+    - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Setup Python
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: 3.10
+        cache: 'pip'
 
-    - name: Upgrade pip & install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install "buildozer==1.5.0" "cython==3.0.2" wheel
+    - name: Upgrade pip
+      run: python -m pip install --upgrade pip
 
-    - name: Install required system packages
+    - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y openjdk-8-jdk zip unzip zlib1g-dev libncurses5 libncurses5-dev \
-        libffi-dev libssl-dev autoconf automake libtool pkg-config
+        sudo apt install -y \
+          openjdk-8-jdk \
+          zip \
+          unzip \
+          zlib1g-dev \
+          libncurses-dev \
+          libffi-dev \
+          libssl-dev \
+          autoconf \
+          automake \
+          libtool \
+          pkg-config \
+          git \
+          python3-venv \
+          python3-pip
+
+    - name: Install Buildozer and Cython
+      run: |
+        python -m pip install --upgrade cython
+        python -m pip install buildozer==1.4.0
+
+    - name: Initialize buildozer.spec if missing
+      run: |
+        if [ ! -f buildozer.spec ]; then
+          buildozer init
+        fi
 
     - name: Build APK
       run: |
-        buildozer android debug
+        buildozer -v android debug
