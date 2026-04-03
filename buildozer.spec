@@ -451,19 +451,5 @@ warn_on_root = 1
 #
 #buildozer --profile demo android debug
 android.add_sqlite3 = False
-[app]
-title = Pet Translator
-package.name = pettranslator
-package.domain = org.example
-source.dir = .
-requirements = python3,kivy==2.3.1,cython==3.0.11
 
-[buildozer]
-log_level = 2
-
-[android]
-api = 31
-minapi = 21
-ndk = 25b
-sdk = 33
 accept_sdk_license = True
