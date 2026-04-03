@@ -17,8 +17,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Set up Python
-      - name: Set up Python 3.10
+      # 2️⃣ Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -42,11 +42,11 @@ jobs:
             autoconf libtool pkg-config zlib1g-dev libncurses5-dev \
             libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
-      # 5️⃣ Install Buildozer + Cython (固定版本避免 jnius 编译报错)
+      # 5️⃣ Install Buildozer + Cython 3.0.2
       - name: Install Buildozer and Cython
         run: |
           pip install --upgrade pip
-          pip install buildozer cython==0.29.36
+          pip install buildozer==1.4.1 cython==3.0.2
 
       # 6️⃣ Build APK (自动下载 p4a / SDK / NDK / Gradle)
       - name: Build APK
