@@ -451,5 +451,4 @@ warn_on_root = 1
 #
 #buildozer --profile demo android debug
 android.add_sqlite3 = False
-
 accept_sdk_license = True
