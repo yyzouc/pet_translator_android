@@ -10,17 +10,17 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      # 1. 拉代码
+      # 1. 拉取代码
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Python（固定 3.10）
+      # 2. Python（固定版本）
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      # 3. 缓存（加速）
+      # 3. 缓存（加速构建）
       - name: Cache buildozer
         uses: actions/cache@v4
         with:
@@ -51,13 +51,11 @@ jobs:
             libffi-dev \
             libssl-dev
 
-      # 5. 安装 Buildozer
+      # 5. 安装 Buildozer + 固定 Cython（🔥关键修复点）
       - name: Install Buildozer
         run: |
           pip install --upgrade pip
-          pip install buildozer cython
-
-      # ❌ 已删除 buildozer init（关键修复点）
+          pip install buildozer cython==0.29.36
 
       # 6. 构建 APK
       - name: Build APK
