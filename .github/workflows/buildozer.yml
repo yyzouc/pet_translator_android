@@ -1,20 +1,24 @@
-name: Build APK
+name: Build APK with Docker
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
     branches: [ main, master ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build APK with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
+      - uses: actions/checkout@v4
+      - name: Build APK in Docker
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/app \
+            -v ~/.buildozer:/home/user/.buildozer \
+            -w /app \
+            kivy/buildozer:latest \
+            android debug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          command: android debug
-          buildozer_version: stable
+          name: pet-translator-apk
+          path: bin/*.apk
