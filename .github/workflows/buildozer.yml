@@ -14,8 +14,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build APK with Buildozer
-        uses: DigiDNA/buildozer-action@v1
+        uses: yokawasa/action-buildozer@v1
         with:
           command: android debug
-          # 可选：指定 buildozer 版本，默认使用 stable
-          # buildozer_version: stable
