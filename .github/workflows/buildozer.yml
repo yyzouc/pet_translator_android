@@ -8,12 +8,39 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build APK with Buildozer
-        uses: yokawasa/action-buildozer@v1
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          command: android debug
+          python-version: '3.9'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip \
+            autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev \
+            cmake libffi-dev libssl-dev autoconf-archive expect
+
+      - name: Install buildozer and cython
+        run: |
+          pip install --upgrade pip
+          pip install buildozer cython
+
+      - name: Build APK with expect (auto-answer root prompt)
+        run: |
+          expect -c '
+            spawn buildozer android debug
+            expect "Are you sure you want to continue [y/n]? "
+            send "y\r"
+            interact
+          '
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: pet-translator-apk
+          path: bin/*.apk
