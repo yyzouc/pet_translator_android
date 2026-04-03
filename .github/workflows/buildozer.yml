@@ -8,10 +8,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest   # 使用旧版 Ubuntu，autotools 更稳定
+    runs-on: ubuntu-20.04   # 使用旧版 Ubuntu，避免 autotools 兼容性问题
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -21,7 +22,9 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev autoconf-archive
+        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip \
+          autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev \
+          cmake libffi-dev libssl-dev autoconf-archive
 
     - name: Install buildozer and cython
       run: |
