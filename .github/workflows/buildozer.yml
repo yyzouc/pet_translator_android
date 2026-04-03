@@ -3,20 +3,26 @@ name: Build APK with Docker
 on:
   push:
     branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Build APK in Docker
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build APK in Docker container
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/app \
             -v ~/.buildozer:/home/user/.buildozer \
             -w /app \
+            -e FORCE_ROOT=1 \
             kivy/buildozer:latest \
             android debug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
