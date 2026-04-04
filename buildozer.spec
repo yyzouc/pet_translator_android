@@ -22,7 +22,7 @@ android.sdk = 33
 android.ndk = 25b
 
 android.archs = arm64-v8a
-android.permissions = INTERNET
+android.permissions = INTERNET,RECORD_AUDIO
 
 # ⭐ 关键（解决 Gradle 崩溃）
 android.enable_androidx = True
