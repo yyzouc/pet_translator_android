@@ -31,7 +31,7 @@ android.allow_backup = True
 android.accept_sdk_license = True
 
 # ⭐ 关键（锁版本避免 SDL2 patch 崩）
-p4a.branch = 2023.08.22
+p4a.branch = v2023.08.22
 p4a.bootstrap = sdl2
 
 [buildozer]
