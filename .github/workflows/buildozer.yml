@@ -1,4 +1,4 @@
-name: Build APK (Buildozer)
+name: Build APK (Stable)
 
 on:
   push:
@@ -7,21 +7,24 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04   # ✅ 关键：不要用 24.04
 
     env:
       ANDROIDMINAPI: 21
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # 1️⃣ 拉代码
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Set up Python
+      # 2️⃣ Python（固定 3.9）
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: 3.9
 
-      - name: Cache Buildozer and Gradle
+      # 3️⃣ 缓存（加速）
+      - name: Cache buildozer
         uses: actions/cache@v4
         with:
           path: |
@@ -31,22 +34,32 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildozer-
 
-      - name: Install system dependencies
+      # 4️⃣ 系统依赖（兼容 Buildozer）
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip build-essential git zip unzip openjdk-17-jdk \
-            autoconf libtool pkg-config zlib1g-dev libncurses5-dev \
-            libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          sudo apt install -y \
+            openjdk-17-jdk \
+            git zip unzip \
+            zlib1g-dev \
+            libncurses5 \
+            libffi-dev \
+            libssl-dev \
+            autoconf automake libtool pkg-config \
+            build-essential
 
-      - name: Install Buildozer and Cython
+      # 5️⃣ Python依赖
+      - name: Install Buildozer
         run: |
           pip install --upgrade pip
-          pip install buildozer==1.5.0 cython==3.0.2
+          pip install buildozer==1.4.0 cython==0.29.36
 
+      # 6️⃣ 构建 APK
       - name: Build APK
         run: |
           buildozer android debug
 
+      # 7️⃣ 上传 APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
