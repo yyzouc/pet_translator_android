@@ -1,4 +1,4 @@
-name: Build APK (Stable)
+name: Build APK (Stable Final)
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04   # ✅ 关键：不要用 24.04
+    runs-on: ubuntu-22.04   # ⭐ 必须 22.04（24.04 会炸）
 
     env:
       ANDROIDMINAPI: 21
@@ -34,7 +34,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildozer-
 
-      # 4️⃣ 系统依赖（兼容 Buildozer）
+      # 4️⃣ 系统依赖（关键）
       - name: Install dependencies
         run: |
           sudo apt update
@@ -48,11 +48,21 @@ jobs:
             autoconf automake libtool pkg-config \
             build-essential
 
+      # ⭐ 强制 Java 版本（避免 Gradle 崩）
+      - name: Fix Java version
+        run: |
+          sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+
       # 5️⃣ Python依赖
       - name: Install Buildozer
         run: |
           pip install --upgrade pip
           pip install buildozer==1.4.0 cython==0.29.36
+
+      # ⭐ 可选：防止缓存导致奇怪错误
+      - name: Clean previous build
+        run: |
+          rm -rf .buildozer
 
       # 6️⃣ 构建 APK
       - name: Build APK
