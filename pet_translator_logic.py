@@ -1,7 +1,7 @@
 import random
 import re
 
-
+# 猫的意图配置
 CAT_INTENTS = {
     "hungry": {
         "keywords": ["喵", "喵喵", "咪", "饿", "我饿", "吃", "饭", "零食", "投喂"],
@@ -53,7 +53,7 @@ CAT_INTENTS = {
     },
 }
 
-
+# 狗的意图配置
 DOG_INTENTS = {
     "greeting": {
         "keywords": ["你好", "嗨", "早", "晚安", "见到你", "主人", "欢迎"],
@@ -105,83 +105,94 @@ DOG_INTENTS = {
     },
 }
 
+def normalize_text(text):
+    """
+    标准化文本，去除标点和空格
+    """
+    if not text:
+        return ""
+    text = text.strip()
+    text = re.sub(r"[，。！？!?.；;:\s]+", "", text)
+    return text
 
-def _normalize_text(s: str) -> str:
-    s = (s or "").strip()
-    # 去掉常见标点、空格，方便包含匹配
-    s = re.sub(r"[，。！？!?.；;:\s]+", "", s)
-    return s
-
-
-def _best_intent(intents: dict, text_norm: str) -> tuple[str, int]:
-    best_key = "generic"
+def get_best_intent(intents, text):
+    """
+    根据文本匹配最佳意图
+    """
+    best_intent = "generic"
     best_score = 0
-
-    for intent_key, cfg in intents.items():
+    
+    for intent_name, config in intents.items():
         score = 0
-        for kw in cfg.get("keywords", []):
-            if kw and kw in text_norm:
-                score += len(kw)
+        for keyword in config.get("keywords", []):
+            if keyword and keyword in text:
+                score += len(keyword)
         if score > best_score:
             best_score = score
-            best_key = intent_key
+            best_intent = intent_name
+    
+    return best_intent, best_score
 
-    return best_key, best_score
-
-
-def translate_by_text(pet_type: str, raw_input: str) -> str:
+def translate_by_text(pet_type, input_text):
     """
-    pet_type: "猫" | "狗" | "自动"
-    raw_input: 语音识别后的中文文本
+    根据宠物类型和输入文本进行翻译
     """
-    text_norm = _normalize_text(raw_input)
-    if not text_norm:
-        return "我还没听清，你再说一遍吧。"
-
-    cat_intents = CAT_INTENTS
-    dog_intents = DOG_INTENTS
-
-    cat_intent, cat_score = _best_intent(cat_intents, text_norm)
-    dog_intent, dog_score = _best_intent(dog_intents, text_norm)
-
-    if pet_type == "自动":
-        chosen = "猫" if cat_score >= dog_score else "狗"
-    else:
-        chosen = pet_type if pet_type in ("猫", "狗") else "猫"
-
-    intents = cat_intents if chosen == "猫" else dog_intents
-    if chosen == "猫":
-        intent_key = cat_intent if cat_score > 0 else "generic"
-        templates = intents.get(intent_key, {}).get("templates") if intent_key != "generic" else None
-    else:
-        intent_key = dog_intent if dog_score > 0 else "generic"
-        templates = intents.get(intent_key, {}).get("templates") if intent_key != "generic" else None
-
-    if templates:
-        response = random.choice(templates)
+    try:
+        normalized_text = normalize_text(input_text)
+        if not normalized_text:
+            return "我还没听清，你再说一遍吧。"
+        
+        cat_intent, cat_score = get_best_intent(CAT_INTENTS, normalized_text)
+        dog_intent, dog_score = get_best_intent(DOG_INTENTS, normalized_text)
+        
+        if pet_type == "自动":
+            chosen_type = "猫" if cat_score >= dog_score else "狗"
+        else:
+            chosen_type = pet_type if pet_type in ("猫", "狗") else "猫"
+        
+        if chosen_type == "猫":
+            intents = CAT_INTENTS
+            intent_name = cat_intent if cat_score > 0 else "generic"
+        else:
+            intents = DOG_INTENTS
+            intent_name = dog_intent if dog_score > 0 else "generic"
+        
+        if intent_name != "generic":
+            templates = intents.get(intent_name, {}).get("templates")
+            if templates:
+                response = random.choice(templates)
+                return f"它在说：{response}"
+        
+        # 通用回复
+        if chosen_type == "猫":
+            generic_responses = [
+                "我有点小情绪，不过你大概听懂了吧。",
+                "喵喵！我的意思大概是：想让你注意我。",
+                "我在努力沟通，你就当我在求互动吧。",
+            ]
+        else:
+            generic_responses = [
+                "汪汪！我的意思大概是：希望你注意我。",
+                "呜呜，我想表达一下，但先让我再确认一下。",
+                "我在努力沟通，你就当我是在求互动吧。",
+            ]
+        
+        response = random.choice(generic_responses)
         return f"它在说：{response}"
+    except Exception as e:
+        print(f"翻译失败: {e}")
+        return "翻译失败，请重试。"
 
-    # generic兜底
-    if chosen == "猫":
-        generic = [
-            "我有点小情绪，不过你大概听懂了吧。",
-            "喵喵！我的意思大概是：想让你注意我。",
-            "我在努力沟通，你就当我在求互动吧。",
-        ]
-        return f"它在说：{random.choice(generic)}"
-
-    generic = [
-        "汪汪！我的意思大概是：希望你注意我。",
-        "呜呜，我想表达一下，但先让我再确认一下。",
-        "我在努力沟通，你就当我是在求互动吧。",
-    ]
-    return f"它在说：{random.choice(generic)}"
-
-
-def random_sentence(pet_type: str) -> str:
-    pet_type = pet_type if pet_type in ("猫", "狗") else "猫"
-    intents = CAT_INTENTS if pet_type == "猫" else DOG_INTENTS
-    intent_key = random.choice(list(intents.keys()))
-    response = random.choice(intents[intent_key]["templates"])
-    return f"（{pet_type}语）→ 它在说：{response}"
-
+def random_sentence(pet_type):
+    """
+    生成随机的宠物语句
+    """
+    try:
+        chosen_type = pet_type if pet_type in ("猫", "狗") else "猫"
+        intents = CAT_INTENTS if chosen_type == "猫" else DOG_INTENTS
+        intent_name = random.choice(list(intents.keys()))
+        response = random.choice(intents[intent_name]["templates"])
+        return f"（{chosen_type}语）→ 它在说：{response}"
+    except Exception as e:
+        print(f"生成随机语句失败: {e}")
+        return "生成失败，请重试。"
