@@ -52,6 +52,9 @@ jobs:
       - name: Fix Java version
         run: |
           sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+          echo "JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64" >> $GITHUB_ENV
+          echo "PATH=$JAVA_HOME/bin:$PATH" >> $GITHUB_ENV
+          java -version
 
       # 5️⃣ Python依赖
       - name: Install Buildozer
