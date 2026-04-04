@@ -181,7 +181,8 @@ class RootWidget(BoxLayout):
 
 class PetTranslatorApp(App):
     def build(self):
-        return Builder.load_string(KV)
+        Builder.load_string(KV)
+        return RootWidget()
 
 
 if __name__ == "__main__":
